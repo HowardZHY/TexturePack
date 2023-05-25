@@ -6,34 +6,15 @@ This code is from Chocapic13' shaders
 Read the terms of modification and sharing before changing something below please !
 !! DO NOT REMOVE !!
 */
+const int GL_LINEAR = 9729;
+const int GL_EXP = 2048;
 
 varying vec4 color;
-
-varying vec2 texcoord;
-
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferModelView;
-uniform mat4 shadowProjection;
-uniform mat4 shadowModelView;
-
-
+varying vec4 texcoord;
+varying vec3 normal;
 
 uniform sampler2D texture;
-
-uniform vec3 sunPosition;
-uniform vec3 moonPosition;
-uniform vec3 upPosition;
 uniform int fogMode;
-uniform int worldTime;
-uniform float wetness;
-uniform float viewWidth;
-uniform float viewHeight;
-uniform float rainStrength;
-
-uniform int heldBlockLightValue;
-uniform vec4 entityColor;
 
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
@@ -42,15 +23,7 @@ uniform vec4 entityColor;
 //////////////////////////////VOID MAIN//////////////////////////////
 
 void main() {
-	vec4 albedo = texture2D(texture,texcoord);
-
-
-
-
-
-	albedo.rgb = color.rgb*pow(albedo.rgb,vec3(2.2))*0.5;	//don't export to gamma 1/2.2 due to RGB11F format
-
-	albedo.a *= color.a;
+	
 /* DRAWBUFFERS:0 */
-	gl_FragData[0] = albedo;
+	gl_FragData[0] = texture2D(texture,texcoord.xy)*color;
 }

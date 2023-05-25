@@ -1,6 +1,5 @@
 #version 120
 
-
 /*
 !! DO NOT REMOVE !!
 This code is from Chocapic13' shaders
@@ -50,32 +49,31 @@ uniform ivec2 eyeBrightnessSmooth;
 ////////////////////sunlight color////////////////////
 ////////////////////sunlight color////////////////////
 ////////////////////sunlight color////////////////////
-const ivec4 ToD[25] = ivec4[25](ivec4(0,200,134,48), //hour,r,g,b
-								ivec4(1,200,134,48),
-								ivec4(2,200,134,48),
-								ivec4(3,200,134,48),
-								ivec4(4,200,134,48),
-								ivec4(5,200,134,48),
-								ivec4(6,200,134,30),
-								ivec4(7,200,180,110),
-								ivec4(8,200,186,132),
-								ivec4(9,200,195,145),
-								ivec4(10,200,199,160),
-								ivec4(11,200,200,175),
-								ivec4(12,200,200,195),
-								ivec4(13,200,200,175),
-								ivec4(14,200,199,160),
-								ivec4(15,200,195,145),
-								ivec4(16,200,186,132),
-								ivec4(17,200,180,110),
-								ivec4(18,200,123,10),
-								ivec4(19,200,134,48),
-								ivec4(20,200,134,48),
-								ivec4(21,200,134,48),
-								ivec4(22,200,134,48),
-								ivec4(23,200,134,48),
-								ivec4(24,200,134,48));
-								
+const ivec4 ToD[25] = ivec4[25](ivec4(0,1,1,1), //hour,r,g,b
+								ivec4(1,1,1,1),
+								ivec4(2,1,1,1),
+								ivec4(3,1,1,1),
+								ivec4(4,1,1,1),
+								ivec4(5,1,1,1),
+								ivec4(6,230,110,40),
+								ivec4(7,315,160,40),
+								ivec4(8,325,170,87),
+								ivec4(9,325,170,110),
+								ivec4(10,315,170,10),
+								ivec4(11,265,170,90),
+								ivec4(12,279,175,100),
+								ivec4(13,265,170,100),
+								ivec4(14,270,170,90),
+								ivec4(15,315,170,99),
+								ivec4(16,320,150,100),
+								ivec4(17,320,150,85),
+								ivec4(18,250,140,95),
+								ivec4(19,2,2,3),
+								ivec4(20,1,1,1),
+								ivec4(21,1,1,1),
+								ivec4(22,1,1,1),
+								ivec4(23,1,1,1),
+								ivec4(24,1,1,1));
 vec3 sky_color = ivec3(60,170,255)/255.0;								
 								
 float fx(float x) {
@@ -97,7 +95,12 @@ void main() {
 	gl_Position = ftransform();
 	texcoord = gl_MultiTexCoord0;
 
-	//if (worldTime < 12700 || worldTime > 23250) {lightVector = normalize(sunPosition);}else {lightVector = normalize(-sunPosition);}
+	if (worldTime < 12700 || worldTime > 23250) {
+		lightVector = normalize(sunPosition);
+	}
+	else {
+		lightVector = normalize(-sunPosition);
+	}
 	
 	sunVec = normalize(sunPosition);
 	moonVec = normalize(-sunPosition);
@@ -122,7 +125,7 @@ sky_color = pow(sky_color,vec3(2.2));
 vec3 nsunlight = normalize(mix(pow(sunlight,vec3(2.2)),vec3(0.25,0.3,0.4),rainStrength));
 sky_color = normalize(mix(sky_color,vec3(0.25,0.3,0.4),rainStrength)); //normalize colors in order to don't change luminance
 vec3 sVector = normalize(upVec);
-const float PI = 3.1416;
+const float PI = 3.14159265359;
 float cosT = 1.; 
 float T = acos(cosT);
 float absCosT = abs(cosT);
@@ -152,7 +155,7 @@ eyeAdapt = (2.0-min(length(ambient_color),eyeBrightnessSmooth.y/240.0*1.7));
 	handItemLight = 0.0;
 	if (heldItemId == 50) {
 		// torch
-		handItemLight = 0.5;
+		handItemLight = 2.8;
 	}
 	
 	else if (heldItemId == 76 || heldItemId == 94) {

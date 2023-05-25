@@ -7,33 +7,20 @@ Read the terms of modification and sharing before changing something below pleas
 !! DO NOT REMOVE !!
 */
 
+const int GL_EXP = 2048;
+const int GL_LINEAR = 9729;
+
 varying vec4 color;
-
 varying vec2 texcoord;
-
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferModelView;
-uniform mat4 shadowProjection;
-uniform mat4 shadowModelView;
-
-
+varying vec2 lmcoord;
+varying vec3 normal;
 
 uniform sampler2D texture;
-
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
-uniform vec3 upPosition;
 uniform int fogMode;
 uniform int worldTime;
 uniform float wetness;
-uniform float viewWidth;
-uniform float viewHeight;
-uniform float rainStrength;
-
-uniform int heldBlockLightValue;
-uniform vec4 entityColor;
 
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
@@ -41,16 +28,15 @@ uniform vec4 entityColor;
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
 
-void main() {
-	vec4 albedo = texture2D(texture,texcoord);
+void main() {	
+	
+	vec2 adjustedTexCoord = texcoord.st;
+	vec3 albedo = texture2D(texture,adjustedTexCoord).rgb*color.rgb;
+	vec4 frag2 = vec4(normal*0.5+0.5, 1.0f);
 
 
-
-
-
-	albedo.rgb = color.rgb*pow(albedo.rgb,vec3(2.2))*0.5;	//don't export to gamma 1/2.2 due to RGB11F format
-
-	albedo.a *= color.a;
-/* DRAWBUFFERS:0 */
-	gl_FragData[0] = albedo;
+/* DRAWBUFFERS:024 */
+	gl_FragData[0] = vec4(albedo,texture2D(texture,adjustedTexCoord).a*color.a);
+	gl_FragData[1] = frag2;	
+	gl_FragData[2] = vec4(lmcoord.t, 1.0, lmcoord.s, 1.0);
 }

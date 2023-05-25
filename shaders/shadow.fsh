@@ -7,16 +7,9 @@ Read the terms of modification and sharing before changing something below pleas
 !! DO NOT REMOVE !!
 */
 
-/* DRAWBUFFERS:0 */
+varying vec4 texcoord;
 
-varying vec4 color;
-varying vec2 texcoord;
-
-uniform sampler2D texture;
-uniform int fogMode;
-
-const int FOGMODE_LINEAR = 9729;
-const int FOGMODE_EXP = 2048;
+uniform sampler2D tex;
 
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
@@ -25,7 +18,5 @@ const int FOGMODE_EXP = 2048;
 //////////////////////////////VOID MAIN//////////////////////////////
 
 void main() {
-
-	gl_FragData[0] = texture2D(texture,texcoord.xy)*color;
-
+	gl_FragData[0] = texture2D(tex,texcoord.xy);
 }

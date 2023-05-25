@@ -7,7 +7,20 @@ Read the terms of modification and sharing before changing something below pleas
 !! DO NOT REMOVE !!
 */
 
-//#define WAVY_STUFF		//disable and gain some more fps
+//////////////////////////////ADJUSTABLE VARIABLES
+//////////////////////////////ADJUSTABLE VARIABLES
+//////////////////////////////ADJUSTABLE VARIABLES
+
+#define WAVING_LEAVES
+#define WAVING_VINES
+#define WAVING_GRASS
+#define WAVING_WHEAT
+#define WAVING_FLOWERS
+#define WAVING_FIRE
+#define WAVING_LAVA
+#define WAVING_LILYPAD
+//#define WAVING_NETHERWART
+//#define WAVING_TALLFLOWERS
 
 #define ENTITY_LEAVES        18.0
 #define ENTITY_VINES        106.0
@@ -19,51 +32,106 @@ Read the terms of modification and sharing before changing something below pleas
 #define ENTITY_FIRE          51.0
 #define ENTITY_LAVAFLOWING   10.0
 #define ENTITY_LAVASTILL     11.0
+//#define ENTITY_NETHERWART   115.0
+//#define ENTITY_POTATO       142.0
+//#define ENTITY_CARROT       141.0
+//#define ENTITY_TALLFLOWERS  175.0
+#define ENTITY_ACACIALEAVES		161.0
+
+//////////////////////////////END OF ADJUSTABLE VARIABLES
+//////////////////////////////END OF ADJUSTABLE VARIABLES
+//////////////////////////////END OF ADJUSTABLE VARIABLES
+
+const float PI = 3.1415927;
 
 varying vec4 color;
+varying vec2 lmcoord;
+varying float mat;
 varying vec2 texcoord;
+
+varying vec3 normal;
 
 
 attribute vec4 mc_Entity;
 attribute vec4 mc_midTexCoord;
 
 uniform vec3 cameraPosition;
-uniform vec3 sunPosition;
-uniform vec3 upPosition;
-
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 uniform int worldTime;
 uniform float frameTimeCounter;
 uniform float rainStrength;
-const float PI48 = 150.796447372;
-float pi2wt = PI48*frameTimeCounter;
-uniform int heldBlockLightValue;
+
+float pi2wt = PI*2*(frameTimeCounter*24);
 
 vec3 calcWave(in vec3 pos, in float fm, in float mm, in float ma, in float f0, in float f1, in float f2, in float f3, in float f4, in float f5) {
-
-    float magnitude = sin(dot(vec4(pi2wt*fm, pos.x, pos.z, pos.y),vec4(0.5))) * mm + ma;
-	vec3 d012 = sin(pi2wt*vec3(f0,f1,f2));
-	vec3 ret = sin(pi2wt*vec3(f3,f4,f5) + vec3(d012.x + d012.y,d012.y + d012.z,d012.z + d012.x) - pos) * magnitude;
-	
+    vec3 ret;
+    float magnitude,d0,d1,d2,d3;
+    magnitude = sin(pi2wt*fm + pos.x*0.5 + pos.z*0.5 + pos.y*0.5) * mm + ma;
+    d0 = sin(pi2wt*f0);
+    d1 = sin(pi2wt*f1);
+    d2 = sin(pi2wt*f2);
+    ret.x = sin(pi2wt*f3 + d0 + d1 - pos.x + pos.z + pos.y) * magnitude;
+    ret.z = sin(pi2wt*f4 + d1 + d2 + pos.x - pos.z + pos.y) * magnitude;
+	ret.y = sin(pi2wt*f5 + d2 + d0 + pos.z + pos.y - pos.y) * magnitude;
     return ret;
 }
 
 vec3 calcMove(in vec3 pos, in float f0, in float f1, in float f2, in float f3, in float f4, in float f5, in vec3 amp1, in vec3 amp2) {
-    vec3 move1 = calcWave(pos      , 0.0054, 0.0400, 0.0400, 0.0127, 0.0089, 0.0114, 0.0063, 0.0224, 0.0015) * amp1;
-	vec3 move2 = calcWave(pos+move1, 0.07, 0.0400, 0.0400, f0, f1, f2, f3, f4, f5) * amp2;
-    return move1+move2;
+    vec3 move1 = calcWave(pos      , 0.0027, 0.0400, 0.0400, 0.0127, 0.0089, 0.0114, 0.0063, 0.0224, 0.0015) * amp1;
+	vec3 move2 = calcWave(pos+move1, 0.0348, 0.0400, 0.0400, f0, f1, f2, f3, f4, f5) * amp2;
+    return move1+move2*(1.0-rainStrength*4.6);
+}
+/*
+vec3 calcWave(in vec3 pos, in float fm, in float mm, in float ma, in float f0, in float f1, in float f2, in float f3, in float f4, in float f5)
+{
+    vec3 ret;
+    float magnitude,d0,d1,d2,d3;
+    magnitude = sin(pi2ft*fm + pos.x*0.5 + pos.z*0.5 + pos.y*0.5) * mm + ma;
+    d0 = sin(pi2ft*f0);
+    d1 = sin(pi2ft*f1);
+    d2 = sin(pi2ft*f2);
+    ret.x = sin(pi2ft*f3 + d0 + d1 - pos.x + pos.z + pos.y) * magnitude;
+    ret.z = sin(pi2ft*f4 + d1 + d2 + pos.x - pos.z + pos.y) * magnitude;
+	ret.y = sin(pi2ft*f5 + d2 + d0 + pos.z + pos.y - pos.y) * magnitude;
+    return ret;
 }
 
+vec3 calcMove(in vec3 pos, in float f1, in float f2, in float f3, in float f4, in vec3 amp1, in vec3 amp2)
+{
+/*
+    const vec3 v1 = vec3( 2.0/16.0,2.0/16.0,2.0/16.0);
+	const vec3 v2 = vec3(-3.0/16.0,3.0/16.0,3.0/16.0);
+	float pi2t = PI*frameTimeCounter;
+	float s1 = sin(pi2t*f1 + dot(2*PI*v1,pos));
+	float s2 = sin(pi2t*f2 + dot(2*PI*v2,pos));
+	vec3 move1 = (normalize(v1)*s1 + normalize(v2)*s2)*amp1*2.5;
+	pos += move1;
+    const vec3 v3 = vec3( 5.0/16.0,5.0/16.0,6.0/16.0);
+	const vec3 v4 = vec3(-6.0/16.0,5.0/16.0,5.0/16.0);
+	float s3 = sin(pi2t*f3 + dot(2*PI*v3,pos));
+	float s4 = sin(pi2t*f4 + dot(2*PI*v4,pos));
+	vec3 move2 = (normalize(v3)*s3 + normalize(v4)*s4)*(abs(s1*s2)*0.6+0.4)*amp2*2.5;
+    return move1+move2;
 
-const vec3 ToD[7] = vec3[7](  vec3(0.58597,0.16,0.005),
-								vec3(0.58597,0.31,0.08),
-								vec3(0.58597,0.45,0.16),
-								vec3(0.58597,0.5,0.35),
-								vec3(0.58597,0.5,0.36),
-								vec3(0.58597,0.5,0.37),
-								vec3(0.58597,0.5,0.38));
-								
+
+}
+*/
+vec3 calcWaterMove(in vec3 pos)
+{
+	float fy = fract(pos.y + 0.001);
+	if (fy > 0.002)
+	{
+		float wave = 0.05 * sin(2*PI/4*frameTimeCounter + 2*PI*2/16*pos.x + 2*PI*5/16*pos.z)
+				   + 0.05 * sin(2*PI/3*frameTimeCounter - 2*PI*3/16*pos.x + 2*PI*4/16*pos.z);
+		return vec3(0, clamp(wave, -fy, 1.0-fy), 0);
+	}
+	else
+	{
+		return vec3(0);
+	}
+}
+
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
@@ -71,122 +139,135 @@ const vec3 ToD[7] = vec3[7](  vec3(0.58597,0.16,0.005),
 //////////////////////////////VOID MAIN//////////////////////////////
 
 void main() {
-
-
-	bool istopv = gl_MultiTexCoord0.t < mc_midTexCoord.t;
+	vec4 vtexcoordam;
+	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).st;
+	vec2 midcoord = (gl_TextureMatrix[0] *  mc_midTexCoord).st;
+	vec2 texcoordminusmid = texcoord-midcoord;
+	vtexcoordam.pq  = abs(texcoordminusmid)*2;
+	vtexcoordam.st  = min(texcoord,midcoord-texcoordminusmid);
+	vec2 vtexcoord    = sign(texcoordminusmid)*0.5+0.5;
+	mat = 1.0f;
+	float istopv = 0.0;
+	//texcoord = gl_MultiTexCoord0.xy;
+	if (gl_MultiTexCoord0.t < mc_midTexCoord.t) istopv = 1.0;
+	/* un-rotate */
+	vec4 position = gbufferModelViewInverse * gl_ModelViewMatrix * gl_Vertex;
+	vec3 worldpos = position.xyz + cameraPosition;
+	/*
+	//initialize per-entity waving parameters
+	float parm0,parm1,parm2,parm3,parm4,parm5 = 0.0;
+	vec3 ampl1,ampl2;
+	ampl1 = vec3(0.0);
+	ampl2 = vec3(0.0);
+	*/
+	#ifdef WAVING_LEAVES
+	if ( mc_Entity.x == ENTITY_LEAVES  || mc_Entity.x == ENTITY_ACACIALEAVES)
+			position.xyz += calcMove(worldpos.xyz,
+			0.0020,
+			0.0064,
+			0.0003,
+			0.0032,
+			0.0031,
+			0.0011,
+			vec3(0.5,0.2,0.7),
+			vec3(0.5,0.4,1.0))*(1.0-rainStrength/2);
+	#endif
 	
+	#ifdef WAVING_VINES
+	if ( mc_Entity.x == ENTITY_VINES )
+			position.xyz += calcMove(worldpos.xyz,
+			0.0040,
+			0.0064,
+			0.0043,
+			0.0035,
+			0.0037,
+			0.0041,
+			vec3(0.0,0.2,0.0),
+			vec3(0.0,0.1,0.5));
+	#endif
 	
-	//optimisation to get only one comparison to do per waving move
-	vec4 idtest = vec4(ENTITY_TALLGRASS,ENTITY_DANDELION,ENTITY_ROSE,ENTITY_WHEAT)-mc_Entity.x;
-	bool wavy1 = idtest.x*idtest.y*idtest.z*idtest.w == 0.0;
+	if (istopv > 0.9) {
+	#ifdef WAVING_GRASS
+	if ( mc_Entity.x == ENTITY_TALLGRASS)
+			position.xyz += calcMove(worldpos.xyz, 
+			0.0041,
+			0.0070,
+			0.0044,
+			0.0038,
+			0.0063,
+			0.0000,
+			vec3(1.8,0.0,1.5),
+			vec3(0.2,0.7,0.4));
+	#endif
 	
-	vec2 id2 = vec2(161.0,ENTITY_LEAVES)-mc_Entity.x;
-	bool wavy2 = id2.x*id2.y == 0.0;
+	#ifdef WAVING_FLOWERS
+	if (mc_Entity.x == ENTITY_DANDELION || mc_Entity.x == ENTITY_ROSE)
+			position.xyz += calcMove(worldpos.xyz,
+			0.0041,
+			0.005,
+			0.0044,
+			0.0038,
+			0.0240,
+			0.0000,
+			vec3(0.8,0.0,0.8),
+			vec3(0.4,0.0,0.4));
+	#endif
 	
+	#ifdef WAVING_WHEAT
+	if ( mc_Entity.x == ENTITY_WHEAT)
+			position.xyz += calcMove(worldpos.xyz,
+			0.0041,
+			0.0070,
+			0.0044,
+			0.0038,
+			0.0240,
+			0.0000,
+			vec3(0.8,0.0,0.8),
+			vec3(0.4,0.0,0.4));
+	#endif
 	
-	idtest = vec4(50.0,62.0,76.0,89.0)-mc_Entity.x;
-	bool emissive = idtest.x*idtest.y*idtest.z*idtest.w == 0.0;
+	#ifdef WAVING_FIRE
+	if ( mc_Entity.x == ENTITY_FIRE)
+			position.xyz += calcMove(worldpos.xyz,
+			0.0105,
+			0.0096,
+			0.0087,
+			0.0063,
+			0.0097,
+			0.0156,
+			vec3(1.2,0.4,1.2),
+			vec3(0.8,0.8,0.8));
+	#endif
 	
-	idtest = vec4(141.0,142.0,175.0,106.0)-mc_Entity.x;
-	
-	bool mat = idtest.x*idtest.y*idtest.z*idtest.w == 0.0;
-	color = pow(emissive? vec4(1.0) : gl_Color,vec4(2.2,2.2,2.2,1.));
-	
-
-
-
-
-		
-	gl_Position = ftransform();
-
-	/*--------------------------------*/
-	
-	//reduced the sun color to a 7 array
-	float hour = max(mod(worldTime/1000.0+2.0,24.0)-2.0,0.0);  //-0.1
-	float cmpH = max(-abs(floor(hour)-6.0)+6.0,0.0); //12
-	float cmpH1 = max(-abs(floor(hour)-5.0)+6.0,0.0); //1
-	
-	
-	vec3 temp = ToD[int(cmpH)];
-	vec3 temp2 = ToD[int(cmpH1)];
-	
-	vec3 sunlight = mix(temp,temp2,fract(hour));
-	const vec3 rainC = vec3(0.01,0.01,0.01);
-	sunlight = mix(sunlight,rainC*sunlight,rainStrength);
-	
-	texcoord = (gl_MultiTexCoord0).xy;
-
-	vec2 lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
-	vec3 normal = normalize(gl_NormalMatrix * gl_Normal);
-	
-
-	
-
-	float skyL = lmcoord.t*1.03225806452-0.5/16.0*1.03225806452;
-	
-	float torch_lightmap = 16.0-min(15.,(lmcoord.s-0.5/16.)*16.*16./15);
-
-
-	float fallof1 = clamp(1.0 - pow(torch_lightmap/16.0,4.0),0.0,1.0);
-	torch_lightmap = fallof1*fallof1/(torch_lightmap*torch_lightmap+1.0);
-
-
-	const vec3 moonlight = vec3(0.5, 0.9, 1.4) * 0.006;
-
-	vec3 sunVec = normalize(sunPosition);
-	vec3 upVec = normalize(upPosition);
-
-
-	vec2 visibility = vec2(dot(sunVec,upVec),dot(-sunVec,upVec));
-
-	float NdotL = dot(normal,normalize(sunPosition));
-	float NdotU = dot(normal,upVec);
-
-	vec2 trCalc = min(abs(worldTime-vec2(23250.0,12700.0)),800.0);
-	float tr = max(min(trCalc.x,trCalc.y)/400.0-1.0,0.0);
-	visibility = pow(clamp(visibility+0.15,0.0,0.15)/0.15,vec2(3.0));
-
-
-
-
-
-	
-
-
-
-	
-
-	
-	if (mat || wavy1 || wavy2) {
-		mat = true;
-		color *= vec4(1.17,1.17,1.17,1.0);	
-		#ifdef WAVY_STUFF
-		if ((istopv && wavy1) || wavy2){
-
-			vec4 position = gl_ModelViewMatrix * gl_Vertex;
-			position = gbufferModelViewInverse * position;
-			vec3 worldpos = position.xyz + cameraPosition;
-			position.xyz += calcMove(worldpos.xyz, 0.0040, 0.0064, 0.0043, 0.0035, 0.0037, 0.0041, vec3(1.0,0.2,1.0), vec3(0.5,0.1,0.5))*1.4;
-			position = gbufferModelView * position;	
-			gl_Position = gl_ProjectionMatrix * position;
-		}
-		#endif
-		
 	}
-
-		vec3 sunlightC = mix(sunlight,moonlight*(1.0-rainStrength*0.7),visibility.y)*tr;
-
-	float diffuse = (worldTime > 12700 && worldTime < 23250)? -NdotL : NdotL;
+	#ifdef WAVING_LAVA
+	if ( mc_Entity.x == ENTITY_LAVAFLOWING || mc_Entity.x == ENTITY_LAVASTILL ) {
+			mat = 0.4;
+			position.xyz += calcWaterMove(worldpos.xyz) * 0.25;
+			}
+	#endif
 	
-	float skyL2 = skyL*skyL;
-	float coef = (diffuse*0.5+0.5)*(diffuse*0.5+0.5)+sqrt(NdotU*0.1+0.101)*0.7;
-	coef = (mat? abs(dot(sunVec,upVec))*0.2+NdotL*0.2+0.6 : coef);
-	float skyL4coef = max(skyL*4.5-3.5,0.0);
-	
-	vec3 sunlightLight = sunlightC * skyL2*skyL2*skyL2*skyL2  + (1.0-tr)*(NdotL*0.2+0.5)*sunlight*visibility.x*skyL2*skyL2*skyL2*skyL2*skyL2*0.2;
-	vec3 skyLight = mix(moonlight,mix(vec3(0.05,0.32,1.),vec3(0.3),rainStrength)*0.55+sunlightC*1.2*tr,visibility.x)*pow(skyL,3.)*0.3;
-	color.rgb *= sunlightLight * mix(1.,coef,tr)*3.2+skyLight *0.6+ vec3(1.1,0.42,0.045)*torch_lightmap*0.66 + 0.002*min(skyL+6/16.,9/16.)*normalize(skyLight+0.0001);
-	color.rgb *= 1.0;
+	#ifdef WAVING_LILYPAD
+	if ( mc_Entity.x == ENTITY_LILYPAD ) {
+			position.xyz += calcWaterMove(worldpos.xyz);
+			mat = 0.4;
+			}
+	#endif
 
+	if (mc_Entity.x == ENTITY_LEAVES || mc_Entity.x == ENTITY_VINES || mc_Entity.x == ENTITY_TALLGRASS || mc_Entity.x == ENTITY_DANDELION || mc_Entity.x == ENTITY_ROSE || mc_Entity.x == ENTITY_WHEAT || mc_Entity.x == 30.0
+	|| mc_Entity.x == 175.0	|| mc_Entity.x == 115.0 || mc_Entity.x == 32.0)
+	mat = 0.4;
+	
+	if (mc_Entity.x == 50.0 || mc_Entity.x == 62.0 || mc_Entity.x == 76.0 || mc_Entity.x == 91.0 || mc_Entity.x == 89.0 || mc_Entity.x == 124.0 || mc_Entity.x == 138.0) mat = 0.6;
+	/* re-rotate */
+	
+	/* projectify */
+	gl_Position = gl_ProjectionMatrix * gbufferModelView * position;
+	
+	color = gl_Color;
+	
+	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+
+	 normal = normalize(gl_NormalMatrix * gl_Normal);
 
 }
