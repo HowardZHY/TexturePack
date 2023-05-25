@@ -164,7 +164,7 @@ vec3 grad1 = mix(sky1,sky2,absCosT*absCosT);
 float sunscat = max(cosY,0.0);
 vec3 grad3 = mix(grad1,nsunlight,sunscat*(1.0-mCosT)*sqrt(1.0-max(cosS,0.0))*(1.0-rainStrength*0.5) );
 
-float Y2 = 3.1416-Y;	
+float Y2 = 3.14159265359-Y;	
 float L2 = L * (c*exp(d*Y2)+A);
 
 const vec3 moonlight2 = pow(normalize(vec3(0.5, 0.9, 1.4) * 0.03),vec3(3.0))*length(vec3(0.5, 0.9, 1.4) * 0.03);
@@ -256,7 +256,7 @@ const vec3 moonlight = vec3(0.575, 1.05, 1.4) * 0.001;
 	vec3 moon_ambient = (moonlight*3.5);
 		vec3 moon_ambient2 = (moonlight*3.5);
 	
-	const float pi = 3.14156;
+	const float pi = 3.14159265359;
 		
 		
 	rawAvg = (sun_ambient*sunVisibility + 8.0*moonlight*moonVisibility)*(0.05+tr*0.15)*4.7+0.0002;

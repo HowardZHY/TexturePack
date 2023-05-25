@@ -49,5 +49,5 @@ const int FOGMODE_EXP = 2048;
 
 void main() {
 
-	gl_FragData[0] = texture2D(texture,texcoord.xy)*color;
+	gl_FragData[0] = pow(texture2D(texture,texcoord.xy)*color,vec4(2.2,2.2,2.2,1.0));
 }

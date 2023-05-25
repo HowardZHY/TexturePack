@@ -48,7 +48,7 @@ void main() {
 
 
 
-	albedo.rgb = color.rgb*pow(albedo.rgb,vec3(2.2))*0.6;	//don't export to gamma 1/2.2 due to RGB11F format
+	albedo.rgb = color.rgb*pow(albedo.rgb,vec3(2.2))*0.5;	//don't export to gamma 1/2.2 due to RGB11F format
 
 	albedo.a *= color.a;
 /* DRAWBUFFERS:0 */

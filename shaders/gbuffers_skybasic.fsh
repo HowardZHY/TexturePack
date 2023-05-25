@@ -85,7 +85,7 @@ vec3 grad3 = mix(grad1,nsunlight,sunscat*sunscat*(1.0-mCosT)*(0.9-rainStrength*0
 //if (clamp(-(cosS)*4.0+3.0,0.0,1.0) > 0.2) return vec3(1.0);
 //return vec3(sunscat*sunscat*(1.0-sqrt(mCosT*0.9+0.1))*(1.0-rainStrength*0.5)*(clamp(-(cosS)*4.0+3.0,0.0,1.0)*0.8+0.2)*0.9+0.1)*0.1;
 
-float Y2 = 3.1416-Y;
+float Y2 = 3.14159265359-Y;
 float L2 = L * (8.0*exp(d*Y2)+A);
 
 const vec3 moonlight2 = pow(normalize(moonlight),vec3(3.0))*length(moonlight);
